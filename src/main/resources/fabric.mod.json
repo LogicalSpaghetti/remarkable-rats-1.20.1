@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "remarkable-rats",
+	"version": "${version}",
+	"name": "Remarkable Rats",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/remarkable-rats/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"main.me.spaghetti.remarkablerats.RemarkableRats"
+		],
+		"client": [
+			"main.me.spaghetti.remarkablerats.RemarkableRatsClient"
+		],
+		"fabric-datagen": [
+			"main.me.spaghetti.remarkablerats.RemarkableRatsDataGenerator"
+		]
+	},
+	"mixins": [
+		"remarkable-rats.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.7",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
+
