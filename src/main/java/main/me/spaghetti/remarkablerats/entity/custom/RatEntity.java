@@ -3,6 +3,7 @@ package main.me.spaghetti.remarkablerats.entity.custom;
 import main.me.spaghetti.remarkablerats.RemarkableRats;
 import main.me.spaghetti.remarkablerats.entity.ModEntities;
 import main.me.spaghetti.remarkablerats.item.ModItems;
+import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -13,9 +14,12 @@ import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsage;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -24,6 +28,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class RatEntity extends TameableEntity implements Bucketable {
     private boolean isFromBucket = false;
@@ -82,17 +88,17 @@ public class RatEntity extends TameableEntity implements Bucketable {
         Item item = itemStack.getItem();
 
         // bucketing
-        if (item == Items.WATER_BUCKET) {
-            return Bucketable.tryBucket(player, hand, this).orElse(super.interactMob(player, hand));
+        if (item == Items.BUNDLE) {
+            return tryBucket(player, hand, this).orElse(super.interactMob(player, hand));
         }
 
         // bundling
-        if (item == Items.BUNDLE) {
+        /*if (item == Items.BUNDLE) {
 
             player.setStackInHand(player.getActiveHand(), ModItems.BUNDLE_OF_RATS.getDefaultStack());
 
             return ActionResult.SUCCESS;
-        }
+        }*/
 
         if (this.isTamed()) {
             // healing
@@ -180,23 +186,74 @@ public class RatEntity extends TameableEntity implements Bucketable {
     }
 
     public void copyDataToStack(ItemStack stack) {
-        Bucketable.copyDataToStack(this, stack);
         NbtCompound nbtCompound = stack.getOrCreateNbt();
-        // nbtCompound.putInt("Variant", this.getVariant().getId());
-        // nbtCompound.putInt("Age", this.getBreedingAge());
+        if (this.hasCustomName()) {
+            stack.setCustomName(this.getCustomName());
+        }
+        if (this.isAiDisabled()) {
+            nbtCompound.putBoolean("NoAI", this.isAiDisabled());
+        }
+        if (this.isSilent()) {
+            nbtCompound.putBoolean("Silent", this.isSilent());
+        }
+        if (this.hasNoGravity()) {
+            nbtCompound.putBoolean("NoGravity", this.hasNoGravity());
+        }
+        if (this.isGlowingLocal()) {
+            nbtCompound.putBoolean("Glowing", this.isGlowingLocal());
+        }
+        if (this.isInvulnerable()) {
+            nbtCompound.putBoolean("Invulnerable", this.isInvulnerable());
+        }
+        nbtCompound.putFloat("Health", this.getHealth());
+
+        if (this.getOwnerUuid() != null) {
+            nbtCompound.putUuid("Owner", this.getOwnerUuid());
+        }
     }
 
     public void copyDataFromNbt(NbtCompound nbt) {
-        Bucketable.copyDataFromNbt(this, nbt);
-        // this.setVariant(AxolotlEntity.Variant.byId(nbt.getInt("Variant")));
-//        if (nbt.contains("Age")) {
-//            this.setBreedingAge(nbt.getInt("Age"));
-//        }
+        if (nbt.contains("NoAI")) {
+            this.setAiDisabled(nbt.getBoolean("NoAI"));
+        }
+        if (nbt.contains("Silent")) {
+            this.setSilent(nbt.getBoolean("Silent"));
+        }
+        if (nbt.contains("NoGravity")) {
+            this.setNoGravity(nbt.getBoolean("NoGravity"));
+        }
+        if (nbt.contains("Glowing")) {
+            this.setGlowing(nbt.getBoolean("Glowing"));
+        }
+        if (nbt.contains("Invulnerable")) {
+            this.setInvulnerable(nbt.getBoolean("Invulnerable"));
+        }
+        if (nbt.contains("Health", NbtElement.NUMBER_TYPE)) {
+            this.setHealth(nbt.getFloat("Health"));
+        }
 
-//        if (nbt.contains("HuntingCooldown")) {
-//            this.getBrain().remember(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, nbt.getLong("HuntingCooldown"));
-//        }
+        if (nbt.contains("Owner") && nbt.getUuid("Owner") != null) {
+            this.setOwnerUuid(nbt.getUuid("Owner"));
+        }
+    }
 
+    public static <T extends LivingEntity> Optional<ActionResult> tryBucket(PlayerEntity player, Hand hand, T entity) {
+        ItemStack itemStack = player.getStackInHand(hand);
+        if (itemStack.getItem() == Items.BUNDLE && entity.isAlive()) {
+            entity.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0f, 1.0f);
+            ItemStack itemStack2 = ((Bucketable) entity).getBucketItem();
+            ((Bucketable) entity).copyDataToStack(itemStack2);
+            ItemStack itemStack3 = ItemUsage.exchangeStack(itemStack, player, itemStack2, false);
+            player.setStackInHand(hand, itemStack3);
+            World world = entity.getWorld();
+            if (!world.isClient) {
+                Criteria.FILLED_BUCKET.trigger((ServerPlayerEntity)player, itemStack2);
+            }
+            entity.discard();
+            RemarkableRats.LOGGER.info("Rat was bundled and discarded allegedly");
+            return Optional.of(ActionResult.success(world.isClient));
+        }
+        return Optional.empty();
     }
 
     @Override

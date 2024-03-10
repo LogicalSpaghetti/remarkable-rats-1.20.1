@@ -21,7 +21,7 @@ public class ModItems {
     public static final Item RAT_SPAWN_EGG = registerItem("rat_spawn_egg",
             new SpawnEggItem(ModEntities.RAT, 0x656476, 0x663d3d, new FabricItemSettings()));
     public static final Item BUNDLE_OF_RATS = Items.register("bundle_of_rats",
-            new BundleOfRatsItem(ModEntities.RAT, Fluids.WATER /*null*/, SoundEvents.ITEM_BUNDLE_DROP_CONTENTS, new Item.Settings().maxCount(1)));
+            new BundleOfRatsItem(ModEntities.RAT, Fluids.EMPTY, SoundEvents.ITEM_BUNDLE_DROP_CONTENTS, new Item.Settings().maxCount(1)));
 
 
     private static Item registerItem(String name, Item item) {

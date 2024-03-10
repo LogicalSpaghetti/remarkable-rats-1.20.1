@@ -24,6 +24,8 @@ public class ModModelProvider extends FabricModelProvider {
     public void generateItemModels(ItemModelGenerator itemModelGenerator) {
         itemModelGenerator.register(ModItems.RAT_SPAWN_EGG,
                 new Model(Optional.of(new Identifier("item/template_spawn_egg")), Optional.empty()));
+        itemModelGenerator.register(ModItems.BUNDLE_OF_RATS,
+                new Model(Optional.of(new Identifier("item/bundle_of_rats")), Optional.empty()));
     }
 }
 
