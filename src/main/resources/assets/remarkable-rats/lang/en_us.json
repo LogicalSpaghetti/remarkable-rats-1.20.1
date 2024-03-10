@@ -1,4 +1,6 @@
 {
   "item.remarkable-rats.rat_spawn_egg": "Rat Spawn Egg",
-  "subtitles.remarkable-rats.rat_squeak": "Rat Squeaks"
+  "item.remarkable-rats.bundle_of_rats": "Bundle of Rats",
+  "subtitles.remarkable-rats.rat_squeak": "Rat Squeaks",
+  "itemGroup.remarkable-rats": "Remarkable Rats"
 }

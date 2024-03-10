@@ -14,43 +14,43 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class RatEntity extends TameableEntity {
+public class RatEntity extends TameableEntity implements Bucketable {
+    private boolean isFromBucket = false;
+
 
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
     public RatEntity(EntityType<? extends TameableEntity> type, World world) {
         super(type, world);
+
+
     }
 
     @Override
     public boolean isFireImmune() {
         return true;
     }
-
     @Override
     public boolean canBreatheInWater() {
         return true;
     }
-
     @Override
-    public boolean canGather(ItemStack stack) {
-        return true;
+    protected int computeFallDamage(float fallDistance, float damageMultiplier) {
+        return 0;
     }
 
-    @Override
-    public boolean canTarget(EntityType<?> type) {
-        return super.canTarget(type);
-    }
 
     private void setupAnimationStates() {
         if (this.idleAnimationTimeout <= 0) {
@@ -60,13 +60,6 @@ public class RatEntity extends TameableEntity {
             this.idleAnimationTimeout--;
         }
     }
-
-    @Override
-    protected int computeFallDamage(float fallDistance, float damageMultiplier) {
-        return 0;
-    }
-
-
 
     @Override
     protected void updateLimbs(float posDelta) {
@@ -88,11 +81,15 @@ public class RatEntity extends TameableEntity {
         ItemStack itemStack = player.getStackInHand(hand);
         Item item = itemStack.getItem();
 
+        // bucketing
+        if (item == Items.WATER_BUCKET) {
+            return Bucketable.tryBucket(player, hand, this).orElse(super.interactMob(player, hand));
+        }
+
         // bundling
         if (item == Items.BUNDLE) {
-            player.setStackInHand(player.getActiveHand(), ModItems.RAT_SPAWN_EGG.getDefaultStack());
 
-            RemarkableRats.LOGGER.info("Bundling Rat?");
+            player.setStackInHand(player.getActiveHand(), ModItems.BUNDLE_OF_RATS.getDefaultStack());
 
             return ActionResult.SUCCESS;
         }
@@ -106,13 +103,10 @@ public class RatEntity extends TameableEntity {
                 if (item.getFoodComponent() != null) {
                     this.heal(item.getFoodComponent().getHunger());
                 }
-                //return ActionResult.PASS;
+                return ActionResult.SUCCESS;
             }
 
             if (this.isOwner(player)) {
-                // picking up
-
-
                 // sitting
                 if ((!this.isBreedingItem(itemStack))) {
                     this.setSitting(!this.isSitting());
@@ -130,16 +124,11 @@ public class RatEntity extends TameableEntity {
                 this.getWorld().sendEntityStatus(this, (byte) 7);
             } else {
                 for (int i = 0; i < 7; ++i) {
-                    double d = this.random.nextGaussian() * 0.02D;
-                    double e = this.random.nextGaussian() * 0.02D;
-                    double f = this.random.nextGaussian() * 0.02D;
                     this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_NEGATIVE_PLAYER_REACTION_PARTICLES);
                 }
             }
             return ActionResult.SUCCESS;
         }
-
-
         return super.interactMob(player, hand);
     }
 
@@ -174,8 +163,49 @@ public class RatEntity extends TameableEntity {
         return RemarkableRats.RAT_SQUEAK_EVENT;
     }
 
+    // what does this do
     @Override
     public EntityView method_48926() {
         return super.getWorld();
+    }
+
+    @Override
+    public boolean isFromBucket() {
+        return isFromBucket;
+    }
+
+    @Override
+    public void setFromBucket(boolean fromBucket) {
+        isFromBucket = fromBucket;
+    }
+
+    public void copyDataToStack(ItemStack stack) {
+        Bucketable.copyDataToStack(this, stack);
+        NbtCompound nbtCompound = stack.getOrCreateNbt();
+        // nbtCompound.putInt("Variant", this.getVariant().getId());
+        // nbtCompound.putInt("Age", this.getBreedingAge());
+    }
+
+    public void copyDataFromNbt(NbtCompound nbt) {
+        Bucketable.copyDataFromNbt(this, nbt);
+        // this.setVariant(AxolotlEntity.Variant.byId(nbt.getInt("Variant")));
+//        if (nbt.contains("Age")) {
+//            this.setBreedingAge(nbt.getInt("Age"));
+//        }
+
+//        if (nbt.contains("HuntingCooldown")) {
+//            this.getBrain().remember(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, nbt.getLong("HuntingCooldown"));
+//        }
+
+    }
+
+    @Override
+    public ItemStack getBucketItem() {
+        return ModItems.BUNDLE_OF_RATS.getDefaultStack();
+    }
+
+    @Override
+    public SoundEvent getBucketFillSound() {
+        return SoundEvents.ITEM_BUNDLE_INSERT;
     }
 }

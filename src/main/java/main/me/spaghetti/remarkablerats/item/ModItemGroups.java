@@ -10,11 +10,15 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ModItemGroups {
-    public static final ItemGroup Rat_GROUP = Registry.register(Registries.ITEM_GROUP,
-            new Identifier(RemarkableRats.MOD_ID, "ruby"),
-            FabricItemGroup.builder().displayName(Text.translatable("itemGroup.ruby"))
+    public static final ItemGroup RAT_GROUP = Registry.register(Registries.ITEM_GROUP,
+            new Identifier(RemarkableRats.MOD_ID, "rat"),
+            FabricItemGroup.builder().displayName(Text.translatable("itemGroup.remarkable-rats"))
                     .icon(() -> new ItemStack(ModItems.RAT_SPAWN_EGG)).entries((displayContext, entries) -> {
+                        // add items here:
                         entries.add(ModItems.RAT_SPAWN_EGG);
+                        entries.add(ModItems.BUNDLE_OF_RATS);
+
+
                     }).build());
 
     public static void registerItemGroups() {
