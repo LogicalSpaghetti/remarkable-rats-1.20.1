@@ -4,9 +4,6 @@ import main.me.spaghetti.remarkablerats.RemarkableRats;
 import main.me.spaghetti.remarkablerats.entity.ModEntities;
 import main.me.spaghetti.remarkablerats.item.custom.BundleOfRatsItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
@@ -30,11 +27,5 @@ public class ModItems {
 
     public static void registerModItems() {
         RemarkableRats.LOGGER.info("Registering Mod Items for " + RemarkableRats.MOD_ID);
-
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(ModItems::addItemsToIngredientTabItemGroup);
-    }
-
-    private static void addItemsToIngredientTabItemGroup(FabricItemGroupEntries entries) {
-        // entries.add(ITEM);
     }
 }

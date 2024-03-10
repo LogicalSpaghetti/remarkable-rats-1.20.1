@@ -87,18 +87,10 @@ public class RatEntity extends TameableEntity implements Bucketable {
         ItemStack itemStack = player.getStackInHand(hand);
         Item item = itemStack.getItem();
 
-        // bucketing
+        // bundling
         if (item == Items.BUNDLE) {
             return tryBucket(player, hand, this).orElse(super.interactMob(player, hand));
         }
-
-        // bundling
-        /*if (item == Items.BUNDLE) {
-
-            player.setStackInHand(player.getActiveHand(), ModItems.BUNDLE_OF_RATS.getDefaultStack());
-
-            return ActionResult.SUCCESS;
-        }*/
 
         if (this.isTamed()) {
             // healing
