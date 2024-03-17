@@ -12,10 +12,8 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.AxolotlEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,7 +21,6 @@ import net.minecraft.item.ItemUsage;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -253,7 +250,7 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
             nbtCompound.putBoolean("NoGravity", this.hasNoGravity());
         }
         if (this.isGlowingLocal()) {
-            nbtCompound.putBoolean("Glowing", this.isGlowingLocal());
+            nbtCompound.putBoolean("Glowing", /*this.isGlowingLocal()*/true);
         }
         if (this.isInvulnerable()) {
             nbtCompound.putBoolean("Invulnerable", this.isInvulnerable());
