@@ -8,9 +8,14 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.passive.AxolotlEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,23 +30,69 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Util;
+import net.minecraft.util.function.ValueLists;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.EntityView;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.IntFunction;
 
-public class RatEntity extends TameableEntity implements Bucketable {
+public class RatEntity extends TameableEntity implements Bucketable, VariantHolder<RatEntity.Variant> {
     private boolean isFromBucket = false;
-
 
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
+    private static final TrackedData<Integer> VARIANT;
+    public static final String VARIANT_KEY = "Variant";
 
     public RatEntity(EntityType<? extends TameableEntity> type, World world) {
         super(type, world);
+    }
 
+    @Override
+    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
+        if (spawnReason == SpawnReason.BUCKET) {
+            return entityData;
+        } else {
+            Random random = world.getRandom();
+            if (!(entityData instanceof RatData)) {
+                entityData = new RatData(Variant.getRandom(random), Variant.getRandom(random));
+            }
+            this.setVariant(((RatData)entityData).getRandomVariant(random));
 
+            return super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
+        }
+    }
+
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(VARIANT, 0);
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+        nbt.putInt(VARIANT_KEY, this.getVariant().getId());
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        this.setVariant(Variant.byId(nbt.getInt(VARIANT_KEY)));
+    }
+
+    public void setVariant(Variant variant) {
+        this.dataTracker.set(VARIANT, variant.getId());
+    }
+
+    public Variant getVariant() {
+        return Variant.byId(this.dataTracker.get(VARIANT));
     }
 
     @Override
@@ -132,14 +183,20 @@ public class RatEntity extends TameableEntity implements Bucketable {
 
     @Override
     protected void initGoals() {
-        this.goalSelector.add(0, new SwimGoal(this));
+        this.goalSelector.add(1, new SwimGoal(this));
+        this.goalSelector.add(1, new EscapeDangerGoal(this, 1.0));
+        this.goalSelector.add(2, new SitGoal(this));
+        this.goalSelector.add(4, new PounceAtTargetGoal(this, 0.4f));
+        this.goalSelector.add(5, new MeleeAttackGoal(this, 1.0, true));
+        this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
+        //this.goalSelector.add(7, new AnimalMateGoal(this, 1.0));
+        this.goalSelector.add(8, new WanderAroundFarGoal(this, 1.0));
+        this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
+        this.goalSelector.add(10, new LookAroundGoal(this));
 
-        this.goalSelector.add(1, new TemptGoal(
-                this, 1.25D, Ingredient.ofItems(Items.POISONOUS_POTATO), false));
-
-        this.goalSelector.add(2, new WanderAroundFarGoal(this, 1D));
-        this.goalSelector.add(3, new LookAtEntityGoal(this, PlayerEntity.class, 4f));
-        this.goalSelector.add(4, new LookAroundGoal(this));
+        this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
+        this.targetSelector.add(2, new AttackWithOwnerGoal(this));
+        this.targetSelector.add(3, new RevengeGoal(this).setGroupRevenge());
     }
 
     public static DefaultAttributeContainer.Builder createRatAttributes() {
@@ -177,6 +234,10 @@ public class RatEntity extends TameableEntity implements Bucketable {
         isFromBucket = fromBucket;
     }
 
+    static {
+        VARIANT = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.INTEGER);
+    }
+
     public void copyDataToStack(ItemStack stack) {
         NbtCompound nbtCompound = stack.getOrCreateNbt();
         if (this.hasCustomName()) {
@@ -202,6 +263,8 @@ public class RatEntity extends TameableEntity implements Bucketable {
         if (this.getOwnerUuid() != null) {
             nbtCompound.putUuid("Owner", this.getOwnerUuid());
         }
+
+        nbtCompound.putInt(VARIANT_KEY, this.getVariant().getId());
     }
 
     public void copyDataFromNbt(NbtCompound nbt) {
@@ -227,6 +290,9 @@ public class RatEntity extends TameableEntity implements Bucketable {
         if (nbt.contains("Owner") && nbt.getUuid("Owner") != null) {
             this.setOwnerUuid(nbt.getUuid("Owner"));
         }
+        this.setVariant(Variant.byId(nbt.getInt(VARIANT_KEY)));
+        RemarkableRats.LOGGER.info(Variant.byId(nbt.getInt(VARIANT_KEY)).name);
+        RemarkableRats.LOGGER.info(this.getVariant().name);
     }
 
     public static <T extends LivingEntity> Optional<ActionResult> tryBucket(PlayerEntity player, Hand hand, T entity) {
@@ -242,7 +308,6 @@ public class RatEntity extends TameableEntity implements Bucketable {
                 Criteria.FILLED_BUCKET.trigger((ServerPlayerEntity)player, itemStack2);
             }
             entity.discard();
-            RemarkableRats.LOGGER.info("Rat was bundled and discarded allegedly");
             return Optional.of(ActionResult.success(world.isClient));
         }
         return Optional.empty();
@@ -256,5 +321,53 @@ public class RatEntity extends TameableEntity implements Bucketable {
     @Override
     public SoundEvent getBucketFillSound() {
         return SoundEvents.ITEM_BUNDLE_INSERT;
+    }
+
+    public enum Variant {
+        BROWN(0, "brown"),
+        TUXEDO(1, "tuxedo"),
+        WHITE(2, "white"),
+
+
+        BLACK(3, "black");
+
+        private static final IntFunction<Variant> BY_ID = ValueLists.createIdToValueFunction(Variant::getId, values(), ValueLists.OutOfBoundsHandling.ZERO);
+
+        private final int id;
+        private final String name;
+
+        Variant(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public static Variant byId(int id) {
+            return BY_ID.apply(id);
+        }
+
+        public int getId() {
+            return this.id;
+        }
+        public String getName() {
+            return this.name;
+        }
+
+        private static Variant getRandom(Random random) {
+            Variant[] variants = Arrays.stream(values()).toArray(Variant[]::new);
+            return Util.getRandom(variants, random);
+        }
+    }
+
+        public static class RatData extends PassiveEntity.PassiveData {
+        public final Variant[] variants;
+
+        public RatData(Variant... variants) {
+            super(false);
+            this.variants = variants;
+        }
+
+        public Variant getRandomVariant(Random random) {
+            return this.variants[random.nextInt(this.variants.length)];
+        }
     }
 }

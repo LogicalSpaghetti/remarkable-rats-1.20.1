@@ -2,6 +2,7 @@ package main.me.spaghetti.remarkablerats;
 
 import main.me.spaghetti.remarkablerats.entity.ModEntities;
 import main.me.spaghetti.remarkablerats.entity.custom.RatEntity;
+import main.me.spaghetti.remarkablerats.entity.custom.WetRatEntity;
 import main.me.spaghetti.remarkablerats.item.ModItemGroups;
 import main.me.spaghetti.remarkablerats.item.ModItems;
 import net.fabricmc.api.ModInitializer;
@@ -31,6 +32,7 @@ public class RemarkableRats implements ModInitializer {
 		ModItemGroups.registerItemGroups();
 
 		FabricDefaultAttributeRegistry.register(ModEntities.RAT, RatEntity.createRatAttributes());
+		FabricDefaultAttributeRegistry.register(ModEntities.WET_RAT, WetRatEntity.createRatAttributes());
 
 		ModItems.registerModItems();
 
