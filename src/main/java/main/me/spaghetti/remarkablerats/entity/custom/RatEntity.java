@@ -13,6 +13,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
+import net.minecraft.entity.passive.RabbitEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -21,6 +22,8 @@ import net.minecraft.item.ItemUsage;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.BiomeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -29,18 +32,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.function.ValueLists;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.EntityView;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
+import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.IntFunction;
 
-public class RatEntity extends TameableEntity implements Bucketable, VariantHolder<RatEntity.Variant> {
+public class RatEntity extends TameableEntity implements Bucketable, VariantHolder<RatEntity.RatVariant> {
     private boolean isFromBucket = false;
 
     public final AnimationState idleAnimationState = new AnimationState();
@@ -59,7 +61,7 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
         } else {
             Random random = world.getRandom();
             if (!(entityData instanceof RatData)) {
-                entityData = new RatData(Variant.getRandom(random), Variant.getRandom(random));
+                entityData = new RatData(RatVariant.getRandom(random), RatVariant.getRandom(random));
             }
             this.setVariant(((RatData)entityData).getRandomVariant(random));
 
@@ -81,15 +83,15 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.setVariant(Variant.byId(nbt.getInt(VARIANT_KEY)));
+        this.setVariant(RatVariant.byId(nbt.getInt(VARIANT_KEY)));
     }
 
-    public void setVariant(Variant variant) {
-        this.dataTracker.set(VARIANT, variant.getId());
+    public void setVariant(RatVariant ratVariant) {
+        this.dataTracker.set(VARIANT, ratVariant.getId());
     }
 
-    public Variant getVariant() {
-        return Variant.byId(this.dataTracker.get(VARIANT));
+    public RatVariant getVariant() {
+        return RatVariant.byId(this.dataTracker.get(VARIANT));
     }
 
     @Override
@@ -257,7 +259,7 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
         }
         nbtCompound.putFloat("Health", this.getHealth());
 
-        if (this.getOwnerUuid() != null) {
+        if (this.getOwner() != null) {
             nbtCompound.putUuid("Owner", this.getOwnerUuid());
         }
 
@@ -286,9 +288,11 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
 
         if (nbt.contains("Owner") && nbt.getUuid("Owner") != null) {
             this.setOwnerUuid(nbt.getUuid("Owner"));
+            setTamed(true);
         }
-        this.setVariant(Variant.byId(nbt.getInt(VARIANT_KEY)));
-        RemarkableRats.LOGGER.info(Variant.byId(nbt.getInt(VARIANT_KEY)).name);
+
+        this.setVariant(RatVariant.byId(nbt.getInt(VARIANT_KEY)));
+        RemarkableRats.LOGGER.info(RatVariant.byId(nbt.getInt(VARIANT_KEY)).name);
         RemarkableRats.LOGGER.info(this.getVariant().name);
     }
 
@@ -320,25 +324,28 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
         return SoundEvents.ITEM_BUNDLE_INSERT;
     }
 
-    public enum Variant {
+    public enum RatVariant {
+        // every new variant needs to be listed here,
+        // given a texture,
+        // given a json for spawning locations,
+        // added to getVariantFromPos,
+        // and needs its biomes added to ModEntityGeneration
         BROWN(0, "brown"),
         TUXEDO(1, "tuxedo"),
         WHITE(2, "white"),
-
-
         BLACK(3, "black");
 
-        private static final IntFunction<Variant> BY_ID = ValueLists.createIdToValueFunction(Variant::getId, values(), ValueLists.OutOfBoundsHandling.ZERO);
+        private static final IntFunction<RatVariant> BY_ID = ValueLists.createIdToValueFunction(RatVariant::getId, values(), ValueLists.OutOfBoundsHandling.ZERO);
 
         private final int id;
         private final String name;
 
-        Variant(int id, String name) {
+        RatVariant(int id, String name) {
             this.id = id;
             this.name = name;
         }
 
-        public static Variant byId(int id) {
+        public static RatVariant byId(int id) {
             return BY_ID.apply(id);
         }
 
@@ -349,22 +356,35 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
             return this.name;
         }
 
-        private static Variant getRandom(Random random) {
-            Variant[] variants = Arrays.stream(values()).toArray(Variant[]::new);
+        private static RatVariant getRandom(Random random) {
+            RatVariant[] variants = Arrays.stream(values()).toArray(RatVariant[]::new);
             return Util.getRandom(variants, random);
         }
     }
 
         public static class RatData extends PassiveEntity.PassiveData {
-        public final Variant[] variants;
+        public final RatVariant[] ratVariants;
 
-        public RatData(Variant... variants) {
+        public RatData(RatVariant... ratVariants) {
             super(false);
-            this.variants = variants;
+            this.ratVariants = ratVariants;
         }
 
-        public Variant getRandomVariant(Random random) {
-            return this.variants[random.nextInt(this.variants.length)];
+        public RatVariant getRandomVariant(Random random) {
+            return this.ratVariants[random.nextInt(this.ratVariants.length)];
+        }
+    }
+
+    private static RatVariant getTypeFromPos(WorldAccess world, BlockPos pos) {
+        RegistryEntry<Biome> registryEntry = world.getBiome(pos);
+        int i = world.getRandom().nextInt(100);
+        if (registryEntry.isIn(BiomeTags.SPAWNS_WHITE_RABBITS)) {
+            return i < 80 ? RatVariant.WHITE : RatVariant.BLACK;
+        } else if (registryEntry.isIn(BiomeTags.SPAWNS_GOLD_RABBITS)) {
+            return RatVariant.TUXEDO;
+        } else {
+            // 1/2 chance of BLACK, 2/5 chance of BROWN, 1/10 chance of TUXEDO
+            return i < 50 ? RatVariant.BLACK : (i < 90 ? RatVariant.BROWN : RatVariant.TUXEDO);
         }
     }
 }
