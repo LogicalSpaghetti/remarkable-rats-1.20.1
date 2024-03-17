@@ -1,6 +1,11 @@
 {
   "item.remarkable-rats.rat_spawn_egg": "Rat Spawn Egg",
   "item.remarkable-rats.bundle_of_rats": "Bundle of Rats",
+  "item.remarkable-rats.rat_top_hat": "Rat Top Hat",
+
+  "block.remarkable-rats.rat_hat_sewing_table": "Rat Sewing",
+
   "subtitles.remarkable-rats.rat_squeak": "Rat Squeaks",
+
   "itemGroup.remarkable-rats": "Remarkable Rats"
 }

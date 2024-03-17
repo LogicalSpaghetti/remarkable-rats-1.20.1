@@ -1,6 +1,7 @@
 package main.me.spaghetti.remarkablerats.item;
 
 import main.me.spaghetti.remarkablerats.RemarkableRats;
+import main.me.spaghetti.remarkablerats.block.custom.ModBlocks;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -17,6 +18,8 @@ public class ModItemGroups {
                         // add items here:
                         entries.add(ModItems.RAT_SPAWN_EGG);
                         entries.add(ModItems.BUNDLE_OF_RATS);
+                        entries.add(ModItems.RAT_TOP_HAT);
+                        entries.add(ModBlocks.RAT_HAT_SEWING_TABLE);
 
 
                     }).build());

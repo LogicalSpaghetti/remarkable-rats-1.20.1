@@ -1,10 +1,12 @@
 package main.me.spaghetti.remarkablerats;
 
+import main.me.spaghetti.remarkablerats.block.entity.ModBlockEntities;
 import main.me.spaghetti.remarkablerats.entity.ModEntities;
 import main.me.spaghetti.remarkablerats.entity.custom.RatEntity;
 import main.me.spaghetti.remarkablerats.entity.custom.WetRatEntity;
 import main.me.spaghetti.remarkablerats.item.ModItemGroups;
 import main.me.spaghetti.remarkablerats.item.ModItems;
+import main.me.spaghetti.remarkablerats.screen.ModScreenHandlers;
 import main.me.spaghetti.remarkablerats.world.gen.ModEntityGeneration;
 import net.fabricmc.api.ModInitializer;
 
@@ -36,6 +38,10 @@ public class RemarkableRats implements ModInitializer {
 		FabricDefaultAttributeRegistry.register(ModEntities.WET_RAT, WetRatEntity.createRatAttributes());
 
 		ModItems.registerModItems();
+
+		ModBlockEntities.registerBlockEntities();
+		ModScreenHandlers.registerScreenHandlers();
+
 		ModEntityGeneration.addSpawns();
 		Registry.register(Registries.SOUND_EVENT, RAT_SQUEAK, RAT_SQUEAK_EVENT);
 	}

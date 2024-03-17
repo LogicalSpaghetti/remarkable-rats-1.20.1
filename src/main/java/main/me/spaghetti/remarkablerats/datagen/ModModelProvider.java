@@ -1,5 +1,6 @@
 package main.me.spaghetti.remarkablerats.datagen;
 
+import main.me.spaghetti.remarkablerats.block.custom.ModBlocks;
 import main.me.spaghetti.remarkablerats.item.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
@@ -18,7 +19,7 @@ public class ModModelProvider extends FabricModelProvider {
 
     @Override
     public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-
+        blockStateModelGenerator.registerSimpleState(ModBlocks.RAT_HAT_SEWING_TABLE);
     }
 
     @Override
@@ -26,6 +27,7 @@ public class ModModelProvider extends FabricModelProvider {
         itemModelGenerator.register(ModItems.RAT_SPAWN_EGG,
                 new Model(Optional.of(new Identifier("item/template_spawn_egg")), Optional.empty()));
         itemModelGenerator.register(ModItems.BUNDLE_OF_RATS, Models.GENERATED);
+        itemModelGenerator.register(ModItems.RAT_TOP_HAT, Models.GENERATED);
     }
 }
 

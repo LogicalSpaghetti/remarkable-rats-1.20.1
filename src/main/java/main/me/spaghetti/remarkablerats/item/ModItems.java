@@ -19,6 +19,8 @@ public class ModItems {
             new SpawnEggItem(ModEntities.RAT, 0x656476, 0x663d3d, new FabricItemSettings()));
     public static final Item BUNDLE_OF_RATS = registerItem("bundle_of_rats",
             new BundleOfRatsItem(ModEntities.RAT, Fluids.EMPTY, SoundEvents.ITEM_BUNDLE_DROP_CONTENTS, new Item.Settings().maxCount(1)));
+    public static final Item RAT_TOP_HAT = registerItem("rat_top_hat",
+            new Item(new FabricItemSettings()));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, new Identifier(RemarkableRats.MOD_ID, name), item);
