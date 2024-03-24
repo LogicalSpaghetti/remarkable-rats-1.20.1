@@ -3,8 +3,6 @@ package main.me.spaghetti.remarkablerats;
 import main.me.spaghetti.remarkablerats.block.custom.ModBlocks;
 import main.me.spaghetti.remarkablerats.block.entity.ModBlockEntities;
 import main.me.spaghetti.remarkablerats.entity.ModEntities;
-import main.me.spaghetti.remarkablerats.entity.custom.RatEntity;
-import main.me.spaghetti.remarkablerats.entity.custom.WetRatEntity;
 import main.me.spaghetti.remarkablerats.item.ModItemGroups;
 import main.me.spaghetti.remarkablerats.item.ModItems;
 import main.me.spaghetti.remarkablerats.screen.ModScreenHandlers;
@@ -12,7 +10,6 @@ import main.me.spaghetti.remarkablerats.sound.ModSounds;
 import main.me.spaghetti.remarkablerats.world.gen.ModEntityGeneration;
 import net.fabricmc.api.ModInitializer;
 
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -44,8 +41,7 @@ public class RemarkableRats implements ModInitializer {
 		ModScreenHandlers.registerScreenHandlers();
 
 
-		FabricDefaultAttributeRegistry.register(ModEntities.RAT, RatEntity.createRatAttributes());
-		FabricDefaultAttributeRegistry.register(ModEntities.WET_RAT, WetRatEntity.createRatAttributes());
+		ModEntities.registerModEntityAttributes();
 
 		ModEntityGeneration.addSpawns();
 	}

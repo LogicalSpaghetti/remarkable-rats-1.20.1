@@ -19,6 +19,8 @@ public class RemarkableRatsClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(ModEntities.WET_RAT, WetRatRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.WET_RAT, WetRatModel::getTexturedModelData);
+        EntityRendererRegistry.register(ModEntities.JOINTED, JointedRenderer::new);
+        EntityModelLayerRegistry.registerModelLayer(ModModelLayers.JOINTED, JointedModel::getTexturedModelData);
 
         HandledScreens.register(ModScreenHandlers.RAT_HAT_SEWING_SCREEN_HANDLER_SCREEN_HANDLER, RatHatSewingScreen::new);
     }

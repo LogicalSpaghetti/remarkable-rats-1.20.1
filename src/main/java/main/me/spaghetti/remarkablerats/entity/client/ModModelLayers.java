@@ -9,4 +9,6 @@ public class ModModelLayers {
             new EntityModelLayer(new Identifier(RemarkableRats.MOD_ID, "rat"), "main");
     public static final EntityModelLayer WET_RAT =
             new EntityModelLayer(new Identifier(RemarkableRats.MOD_ID, "wet_rat"), "main");
+    public static final EntityModelLayer JOINTED =
+            new EntityModelLayer(new Identifier(RemarkableRats.MOD_ID, "jointed"), "main");
 }
