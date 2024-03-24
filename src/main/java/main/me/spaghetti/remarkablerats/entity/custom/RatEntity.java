@@ -8,6 +8,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -15,10 +16,8 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsage;
-import net.minecraft.item.Items;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -28,6 +27,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.function.ValueLists;
@@ -142,6 +142,7 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
         }
 
         if (this.isTamed()) {
+            ActionResult actionResult;
             // healing
             if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
                 if (!player.getAbilities().creativeMode) {
@@ -152,14 +153,24 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
                 }
                 return ActionResult.SUCCESS;
             }
-
-            if (this.isOwner(player)) {
-                // sitting
-                if ((!this.isBreedingItem(itemStack))) {
-                    this.setSitting(!this.isSitting());
+            // dying
+            if (item instanceof DyeItem dyeItem) {
+                if (this.isOwner(player)) {
+                    DyeColor dyeColor = dyeItem.getColor();
+                    if (dyeColor == this.getOutfitColor()) return super.interactMob(player, hand);
+                    this.setOutfitColor(dyeColor);
+                    if (player.getAbilities().creativeMode) return ActionResult.SUCCESS;
+                    itemStack.decrement(1);
                     return ActionResult.SUCCESS;
                 }
             }
+
+            if ((actionResult = super.interactMob(player, hand)).isAccepted() && !this.isBaby() || !this.isOwner(player)) return actionResult;
+            this.setSitting(!this.isSitting());
+            this.jumping = false;
+            this.navigation.stop();
+            this.setTarget(null);
+            return ActionResult.SUCCESS;
         } else if (item.getFoodComponent() != null) { // taming
             if (!player.getAbilities().creativeMode) {
                 player.getStackInHand(hand).decrement(1);
@@ -167,6 +178,7 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
             if (this.random.nextInt(Math.max(1, 6 - item.getFoodComponent().getHunger())) == 0) {
                 this.setOwner(player);
                 this.navigation.stop();
+                this.setSitting(true);
                 this.setTarget(null);
                 this.getWorld().sendEntityStatus(this, (byte) 7);
             } else {
@@ -177,6 +189,34 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
             return ActionResult.SUCCESS;
         }
         return super.interactMob(player, hand);
+    }
+
+    private DyeColor getOutfitColor() {
+        return null;
+    }
+
+    private void setOutfitColor(DyeColor color) {
+    }
+
+    @Override
+    public void setSitting(boolean sitting) {
+        RemarkableRats.LOGGER.info("sitting was changed to: " + sitting);
+        super.setSitting(sitting);
+    }
+
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        if (this.isInvulnerableTo(source)) {
+            return false;
+        }
+        Entity entity = source.getAttacker();
+        if (entity == this.getOwner()) {
+            return false;
+        }
+        if (!this.getWorld().isClient) {
+            this.setSitting(false);
+        }
+        return super.damage(source, amount);
     }
 
     @Override
@@ -234,7 +274,7 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
 
     static {
         VARIANT = DataTracker.registerData(RatEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    }
+       }
 
     public void copyDataToStack(ItemStack stack) {
         NbtCompound nbtCompound = stack.getOrCreateNbt();

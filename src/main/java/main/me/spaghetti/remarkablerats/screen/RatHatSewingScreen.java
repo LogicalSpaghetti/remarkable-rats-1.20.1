@@ -19,8 +19,7 @@ public class RatHatSewingScreen extends HandledScreen<RatHatSewingScreenHandler>
     @Override
     protected void init() {
         super.init();
-        // titleY = 1000;
-        // playerInventoryTitleY = 1000;
+        // titleY = 1000; playerInventoryTitleY = 1000;
     }
 
     @Override
@@ -46,7 +45,6 @@ public class RatHatSewingScreen extends HandledScreen<RatHatSewingScreenHandler>
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         renderBackground(context);
-        //renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }

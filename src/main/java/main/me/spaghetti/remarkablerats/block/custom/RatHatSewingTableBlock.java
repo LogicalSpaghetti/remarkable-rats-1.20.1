@@ -11,9 +11,11 @@ import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -21,13 +23,19 @@ import org.jetbrains.annotations.Nullable;
 
 // wool can be turned into a basic colored hat,
 // which then needs to be shaped (profession),
-// embellished (sub-profession),
-// and enhanced (adds a boost like speed or haste).
+// and then upgraded in a couple ways. the wool color, embellishing item, and other stuff...
 
 // todo: just make it like tinker's construct, where the different parts determine profession, niche, and even modifiers
 // idk if it should use separate blocks for each step, or just have them contained in different tabs
 public class RatHatSewingTableBlock extends BlockWithEntity implements BlockEntityProvider {
-    private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 12, 16);
+    private static final VoxelShape OUTLINE_SHAPE =
+            VoxelShapes.union(
+                    BlockWithEntity.createCuboidShape(0, 12, 0, 16, 16, 16),
+                    BlockWithEntity.createCuboidShape(0, 0, 0, 4, 12, 4),
+                    BlockWithEntity.createCuboidShape(12, 0, 0, 16, 12, 4),
+                    BlockWithEntity.createCuboidShape(12, 0, 12, 16, 12, 16),
+                    BlockWithEntity.createCuboidShape(0, 0, 12, 4, 12, 16)
+            );
 
     public RatHatSewingTableBlock(Settings settings) {
         super(settings);
@@ -35,7 +43,7 @@ public class RatHatSewingTableBlock extends BlockWithEntity implements BlockEnti
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return SHAPE;
+        return OUTLINE_SHAPE;
     }
 
     @Override
