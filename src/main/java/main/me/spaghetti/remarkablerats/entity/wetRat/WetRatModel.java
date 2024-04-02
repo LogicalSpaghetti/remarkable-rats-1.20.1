@@ -1,6 +1,6 @@
-package main.me.spaghetti.remarkablerats.entity.client;
+package main.me.spaghetti.remarkablerats.entity.wetRat;
 
-import main.me.spaghetti.remarkablerats.entity.custom.WetRatEntity;
+import main.me.spaghetti.remarkablerats.entity.wetRat.WetRatEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;

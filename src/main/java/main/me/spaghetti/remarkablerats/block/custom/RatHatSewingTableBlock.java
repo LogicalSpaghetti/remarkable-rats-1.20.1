@@ -28,6 +28,10 @@ import org.jetbrains.annotations.Nullable;
 // todo: just make it like tinker's construct, where the different parts determine profession, niche, and even modifiers
 // idk if it should use separate blocks for each step, or just have them contained in different tabs
 public class RatHatSewingTableBlock extends BlockWithEntity implements BlockEntityProvider {
+    public RatHatSewingTableBlock(Settings settings) {
+        super(settings);
+    }
+
     private static final VoxelShape OUTLINE_SHAPE =
             VoxelShapes.union(
                     BlockWithEntity.createCuboidShape(0, 12, 0, 16, 16, 16),
@@ -36,10 +40,6 @@ public class RatHatSewingTableBlock extends BlockWithEntity implements BlockEnti
                     BlockWithEntity.createCuboidShape(12, 0, 12, 16, 12, 16),
                     BlockWithEntity.createCuboidShape(0, 0, 12, 4, 12, 16)
             );
-
-    public RatHatSewingTableBlock(Settings settings) {
-        super(settings);
-    }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {

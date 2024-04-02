@@ -1,7 +1,7 @@
-package main.me.spaghetti.remarkablerats.entity.client;
+package main.me.spaghetti.remarkablerats.entity.rat;
 
 import main.me.spaghetti.remarkablerats.entity.animation.ModAnimations;
-import main.me.spaghetti.remarkablerats.entity.custom.RatEntity;
+import main.me.spaghetti.remarkablerats.entity.rat.RatEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
@@ -16,6 +16,7 @@ public class RatModel<T extends RatEntity> extends SinglePartEntityModel<T> {
 		this.rat = root.getChild("Rat");
 		this.head = rat.getChild("BodyBottom").getChild("Chest").getChild("Head");
 	}
+
 	public static TexturedModelData getTexturedModelData() {
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
@@ -67,14 +68,6 @@ public class RatModel<T extends RatEntity> extends SinglePartEntityModel<T> {
 		ModelPartData BackRightFoot = BackRightLeg.addChild("BackRightFoot", ModelPartBuilder.create().uv(0, 17).cuboid(-4.0F, -5.0F, 0.0F, 1.0F, 3.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 		return TexturedModelData.of(modelData, 32, 32);
 	}
-	@Override
-	public void setAngles(RatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.getPart().traverse().forEach(ModelPart::resetTransform); // this line resets the transformations each time, so they don't stack
-		this.setHeadAngles(netHeadYaw, headPitch);
-
-		this.animateMovement(ModAnimations.RAT_WALK, limbSwing, limbSwingAmount, 2f, 2.5f);
-		this.updateAnimation(entity.idleAnimationState, ModAnimations.RAT_IDLE, ageInTicks, 1f);
-	}
 
 	private void setHeadAngles(float headYaw, float headPitch) {
 		headYaw = MathHelper.clamp(headYaw, -30.0F, 30.0F);
@@ -92,5 +85,14 @@ public class RatModel<T extends RatEntity> extends SinglePartEntityModel<T> {
 	@Override
 	public ModelPart getPart() {
 		return rat;
+	}
+
+	@Override
+	public void setAngles(RatEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		this.getPart().traverse().forEach(ModelPart::resetTransform); // this line resets the transformations each time, so they don't stack
+		this.setHeadAngles(netHeadYaw, headPitch);
+
+		this.animateMovement(ModAnimations.RAT_WALK, limbSwing, limbSwingAmount, 2f, 2.5f);
+		this.updateAnimation(entity.idleAnimationState, ModAnimations.RAT_IDLE, ageInTicks, 1f);
 	}
 }

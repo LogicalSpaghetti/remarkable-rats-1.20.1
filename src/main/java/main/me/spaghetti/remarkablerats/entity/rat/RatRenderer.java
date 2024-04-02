@@ -1,7 +1,7 @@
-package main.me.spaghetti.remarkablerats.entity.client;
+package main.me.spaghetti.remarkablerats.entity.rat;
 
 import main.me.spaghetti.remarkablerats.RemarkableRats;
-import main.me.spaghetti.remarkablerats.entity.custom.RatEntity;
+import main.me.spaghetti.remarkablerats.entity.client.ModModelLayers;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;

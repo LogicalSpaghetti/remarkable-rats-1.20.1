@@ -2,6 +2,12 @@ package main.me.spaghetti.remarkablerats;
 
 import main.me.spaghetti.remarkablerats.entity.ModEntities;
 import main.me.spaghetti.remarkablerats.entity.client.*;
+import main.me.spaghetti.remarkablerats.entity.jointed.JointedModel;
+import main.me.spaghetti.remarkablerats.entity.jointed.JointedRenderer;
+import main.me.spaghetti.remarkablerats.entity.rat.RatModel;
+import main.me.spaghetti.remarkablerats.entity.rat.RatRenderer;
+import main.me.spaghetti.remarkablerats.entity.wetRat.WetRatModel;
+import main.me.spaghetti.remarkablerats.entity.wetRat.WetRatRenderer;
 import main.me.spaghetti.remarkablerats.screen.ModScreenHandlers;
 import main.me.spaghetti.remarkablerats.screen.RatHatSewingScreen;
 import net.fabricmc.api.ClientModInitializer;

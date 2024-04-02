@@ -1,4 +1,4 @@
-package main.me.spaghetti.remarkablerats.entity.custom;
+package main.me.spaghetti.remarkablerats.entity.rat;
 
 import main.me.spaghetti.remarkablerats.RemarkableRats;
 import main.me.spaghetti.remarkablerats.entity.ModEntities;
@@ -16,7 +16,6 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -67,6 +66,8 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
             return super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
         }
     }
+
+
 
     protected void initDataTracker() {
         super.initDataTracker();
@@ -227,7 +228,7 @@ public class RatEntity extends TameableEntity implements Bucketable, VariantHold
         this.goalSelector.add(4, new PounceAtTargetGoal(this, 0.4f));
         this.goalSelector.add(5, new MeleeAttackGoal(this, 1.0, true));
         this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
-        //this.goalSelector.add(7, new AnimalMateGoal(this, 1.0));
+        this.goalSelector.add(7, new AnimalMateGoal(this, 1.0));
         this.goalSelector.add(8, new WanderAroundFarGoal(this, 1.0));
         this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(10, new LookAroundGoal(this));

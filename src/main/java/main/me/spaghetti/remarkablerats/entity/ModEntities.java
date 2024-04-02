@@ -1,9 +1,9 @@
 package main.me.spaghetti.remarkablerats.entity;
 
 import main.me.spaghetti.remarkablerats.RemarkableRats;
-import main.me.spaghetti.remarkablerats.entity.custom.JointedEntity;
-import main.me.spaghetti.remarkablerats.entity.custom.RatEntity;
-import main.me.spaghetti.remarkablerats.entity.custom.WetRatEntity;
+import main.me.spaghetti.remarkablerats.entity.jointed.JointedEntity;
+import main.me.spaghetti.remarkablerats.entity.rat.RatEntity;
+import main.me.spaghetti.remarkablerats.entity.wetRat.WetRatEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
@@ -26,7 +26,7 @@ public class ModEntities {
     public static final EntityType<JointedEntity> JOINTED = Registry.register(Registries.ENTITY_TYPE,
             new Identifier(RemarkableRats.MOD_ID, "jointed"),
             FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, JointedEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.9f, 1.9f)).build());
+                    .dimensions(EntityDimensions.fixed(JointedEntity.width, JointedEntity.height)).build());
 
 
     public static void registerModEntityAttributes() {

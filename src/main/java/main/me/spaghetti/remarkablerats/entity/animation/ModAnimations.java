@@ -134,4 +134,11 @@ public class ModAnimations {
                     new Keyframe(0.4167F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR)
             ))
             .build();
+
+    public static final Animation jointedHeight = Animation.Builder.create(1.0F).looping()
+            .addBoneAnimation("main", new Transformation(Transformation.Targets.TRANSLATE,
+                    new Keyframe(0.0F, AnimationHelper.createTranslationalVector(0.0F, -32.0F, 0.0F), Transformation.Interpolations.LINEAR),
+                    new Keyframe(1.0F, AnimationHelper.createTranslationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR)
+            ))
+            .build();
 }
