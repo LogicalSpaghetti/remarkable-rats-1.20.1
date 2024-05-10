@@ -16,13 +16,21 @@ import java.awt.geom.Point2D;
 
 public class JointedEntity extends GolemEntity {
 
-    Vec3d[] goals = new Vec3d[3];
-    public static double jointedDirection = 0; // in radians
+    public Vec3d[] legGoal = new Vec3d[4];
+
+    // the direction the jointed is facing in the XZ plane, represented in radians
+    public static double jointedDirection = 0;
 
     public static final float width = 0.7f;
-    public static float height = 1.5f;
+    public static float height = 1.125f; // 18 pixels
+
+    public Vec3d legRoot = new Vec3d(this.getX(), this.getY() + height, this.getZ());
 
     public float radianT = 0;
+
+    public float[] legLengths = {
+            12, 10, 10
+    };
 
     public JointedEntity(EntityType<? extends GolemEntity> entityType, World world) {
         super(entityType, world);
@@ -49,57 +57,34 @@ public class JointedEntity extends GolemEntity {
     public void tick() {
         super.tick();
 
-        double distance = width;
+        adjustGoals();
 
-        Point2D.Double goalA = rotatePoint(
-                new Point2D.Double(this.getPos().getX() - distance, this.getPos().getZ() + distance),
-                new Point2D.Double(this.getPos().getX(), this.getPos().getZ()),
-                jointedDirection);
-        Point2D.Double goalB = rotatePoint(
-                new Point2D.Double(this.getPos().getX() - distance, this.getPos().getZ() - distance),
-                new Point2D.Double(this.getPos().getX(), this.getPos().getZ()),
-                jointedDirection);
-        Point2D.Double goalC = rotatePoint(
-                new Point2D.Double(this.getPos().getX() + distance, this.getPos().getZ() - distance),
-                new Point2D.Double(this.getPos().getX(), this.getPos().getZ()),
-                jointedDirection);
-        Point2D.Double goalD = rotatePoint(
-                new Point2D.Double(this.getPos().getX() + distance, this.getPos().getZ() + distance),
-                new Point2D.Double(this.getPos().getX(), this.getPos().getZ()),
-                jointedDirection);
+        createParticles();
 
+
+    }
+
+    private void adjustGoals() {
+        legGoal[0] = new Vec3d(this.getX() + 1, this.getY(), this.getZ() - 1);
+        legGoal[1] = new Vec3d(this.getX() - 1, this.getY(), this.getZ() - 1);
+        legGoal[2] = new Vec3d(this.getX() - 1, this.getY(), this.getZ() + 1);
+        legGoal[3] = new Vec3d(this.getX() + 1, this.getY(), this.getZ() + 1);
+    }
+
+    private void createParticles() {
         World world = this.getWorld();
-        double particleX = this.getPos().getX();
-        double particleY = this.getPos().getY();
-        double particleZ = this.getPos().getZ();
 
         // indicates the direction the entity is "facing"
         world.addParticle(ParticleTypes.BUBBLE,
-                particleX + Math.sin(jointedDirection),
-                particleY + (height/2),
-                particleZ + Math.cos(jointedDirection),
+                this.getPos().getX() + Math.sin(jointedDirection),
+                this.getPos().getY() + (height/2),
+                this.getPos().getZ() + Math.cos(jointedDirection),
                 0.0, 0.0, 0.0);
 
-        world.addParticle(ParticleTypes.FLAME,
-                goalA.x,
-                particleY,
-                goalA.y,
-                0.0, 0.0, 0.0);
-        world.addParticle(ParticleTypes.FLAME,
-                goalB.x,
-                particleY,
-                goalB.y,
-                0.0, 0.0, 0.0);
-        world.addParticle(ParticleTypes.FLAME,
-                goalC.x,
-                particleY,
-                goalC.y,
-                0.0, 0.0, 0.0);
-        world.addParticle(ParticleTypes.FLAME,
-                goalD.x,
-                particleY,
-                goalD.y,
-                0.0, 0.0, 0.0);
+        world.addParticle(ParticleTypes.FLAME, legGoal[0].getX(), legGoal[0].getY(), legGoal[0].getZ(), 0.0, 0.0, 0.0);
+        world.addParticle(ParticleTypes.FLAME, legGoal[1].getX(), legGoal[1].getY(), legGoal[1].getZ(), 0.0, 0.0, 0.0);
+        world.addParticle(ParticleTypes.FLAME, legGoal[2].getX(), legGoal[2].getY(), legGoal[2].getZ(), 0.0, 0.0, 0.0);
+        world.addParticle(ParticleTypes.FLAME, legGoal[3].getX(), legGoal[3].getY(), legGoal[3].getZ(), 0.0, 0.0, 0.0);
     }
 
     private Point2D.Double rotatePoint(Point2D.Double point, Point2D.Double origin, double angle) {
