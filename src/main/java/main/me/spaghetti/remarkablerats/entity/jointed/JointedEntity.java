@@ -27,6 +27,8 @@ public class JointedEntity extends GolemEntity {
     public Vec3d legRoot = new Vec3d(this.getX(), this.getY() + height, this.getZ());
 
     public float radianT = 0;
+    public float radianTT = 0;
+    public int clicked = 0;
 
     public float[] legLengths = {
             12, 10, 10
@@ -40,7 +42,13 @@ public class JointedEntity extends GolemEntity {
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
 
-        radianT += (float) (Math.PI/6);
+        clicked = 1;
+        if (player.isSneaking()) {
+            radianTT += (float) (Math.PI/6);
+        } else {
+            radianT += (float) (Math.PI/6);
+        }
+
 
         return ActionResult.SUCCESS;
         //return super.interactMob(player, hand);

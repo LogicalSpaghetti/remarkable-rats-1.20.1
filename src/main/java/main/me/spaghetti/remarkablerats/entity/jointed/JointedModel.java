@@ -1,5 +1,6 @@
 package main.me.spaghetti.remarkablerats.entity.jointed;
 
+import main.me.spaghetti.remarkablerats.util.Kinematics;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
@@ -112,7 +113,7 @@ public class JointedModel<T extends JointedEntity> extends SinglePartEntityModel
 
 	@Override
 	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-		this.getPart().traverse().forEach(ModelPart::resetTransform); // this line resets the transformations each time, so they don't stack
+		//this.getPart().traverse().forEach(ModelPart::resetTransform); // this line resets the transformations each time, so they don't stack
 
 		PlayerEntity player = entity.getWorld().getClosestPlayer(entity, 16);
 		float angle = 0;
@@ -126,13 +127,23 @@ public class JointedModel<T extends JointedEntity> extends SinglePartEntityModel
 			if (playerOffset.getZ() < 0) {
 				angle = -angle;
 			}
+
 		} else {
 			// player is out of range
 		}
-		legs[0][0].yaw = angle;
+		legs[1][0].yaw = angle;
 
-        for (ModelPart tertiaryLeg : tertiaryLegs) {
+		if (entity.clicked > 0) {
+			Kinematics.transformLimb(legs[0], entity.legLengths, entity.legGoal[0]);
+			Kinematics.transformLimb(legs[1], entity.legLengths, entity.legGoal[1]);
+			Kinematics.transformLimb(legs[2], entity.legLengths, entity.legGoal[2]);
+			Kinematics.transformLimb(legs[3], entity.legLengths, entity.legGoal[3]);
+			entity.clicked = 0;
+		}
+
+        /*for (ModelPart tertiaryLeg : tertiaryLegs) {
             tertiaryLeg.pitch = entity.radianT;
-        }
+            tertiaryLeg.yaw = entity.radianTT;
+        }*/
 	}
 }
