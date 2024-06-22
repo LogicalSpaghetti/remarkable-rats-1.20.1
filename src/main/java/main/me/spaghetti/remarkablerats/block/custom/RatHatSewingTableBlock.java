@@ -68,8 +68,6 @@ public class RatHatSewingTableBlock extends BlockWithEntity implements BlockEnti
         }
     }
 
-    // World world, PlayerEntity player, Hand hand, BlockHitResult hit
-    // BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {

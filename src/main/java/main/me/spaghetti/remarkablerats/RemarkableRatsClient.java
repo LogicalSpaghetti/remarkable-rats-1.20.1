@@ -19,7 +19,6 @@ public class RemarkableRatsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-
         EntityRendererRegistry.register(ModEntities.RAT, RatRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModModelLayers.RAT, RatModel::getTexturedModelData);
 
